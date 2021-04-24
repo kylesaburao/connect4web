@@ -1,0 +1,19 @@
+<table>
+  <tbody>
+    <tr>
+      <td *ngFor="let column of columns" (click)="activateColumn(column)">.</td>
+    </tr>
+    <tr *ngFor="let row of rows">
+      <td
+        *ngFor="let column of columns"
+        (click)="onCellClicked(row, column)"
+        (mouseenter)="onCellHover(row, column)"
+        appCellState
+        [coordinates]="[row, column]"
+      ></td>
+    </tr>
+  </tbody>
+</table>
+
+<p>TEMP Winner: {{ debugText }}</p>
+<button (click)="resetGame()">TEMP Reset</button>

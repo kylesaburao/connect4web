@@ -4,4 +4,6 @@ export interface Evaluable {
   simulateMove(move: number): Evaluable;
   over(): boolean;
   winner(): string;
+  currentPlayer(): number
+  winningPlayer(): number;
 }
