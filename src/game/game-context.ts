@@ -67,8 +67,8 @@ export class ConnectContext implements Evaluable {
     return this._getValidMoves();
   }
 
-  applyMove(move: number): void {
-    this._executeMove(move);
+  applyMove(move: number): boolean {
+    return this._executeMove(move);
   }
 
   simulateMove(move: number): ConnectContext {
@@ -260,7 +260,7 @@ export class ConnectContext implements Evaluable {
     return this._atGrid(0, column) === ConnectContext.STATE_DEFAULT;
   }
 
-  private _executeMove(column: number): void {
+  private _executeMove(column: number): boolean {
     if (!this.over() && this._isValidMove(column)) {
       let moveRow = -1;
 
@@ -279,6 +279,9 @@ export class ConnectContext implements Evaluable {
         this._context.currentState === ConnectContext.STATE_X
           ? ConnectContext.STATE_O
           : ConnectContext.STATE_X;
+
+      return true;
     }
+    return false;
   }
 }

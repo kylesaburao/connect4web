@@ -24,13 +24,15 @@ export class GameContextService {
   }
 
   applyMove(move: number): void {
-    this._context.applyMove(move);
+    let playerMoved: boolean = this._context.applyMove(move);
 
     new Promise(() => {
       // temp ai
-      let aiColumn = evaluateNextMove(this._context);
-      if (aiColumn !== null) {
-        this._context.applyMove(aiColumn);
+      if (playerMoved) {
+        let aiColumn = evaluateNextMove(this._context);
+        if (aiColumn !== null) {
+          this._context.applyMove(aiColumn);
+        }
       }
 
       this._contextUpdated.next(true);
