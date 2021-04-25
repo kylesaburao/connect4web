@@ -1,0 +1,14 @@
+<table>
+  <tbody>
+    <tr *ngFor="let row of rows">
+      <td
+        *ngFor="let column of columns"
+        appCellState
+        [coordinates]="[row, column]"
+      ></td>
+    </tr>
+  </tbody>
+</table>
+
+<p>TEMP Winner: {{ debugText }}</p>
+<button (click)="resetGame()">TEMP Reset</button>
