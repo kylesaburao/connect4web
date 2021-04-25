@@ -56,7 +56,7 @@ export class GameContextService {
       this._agentBusy.next(true);
       this._worker.postMessage({
         context: this._context._context,
-        rounds: 5000, // TODO: dynamic duration
+        rounds: 7500, // TODO: dynamic duration
       });
     }
   }

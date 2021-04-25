@@ -17,11 +17,12 @@
         </table>
 
         <mat-progress-bar
+          class="progress-bar"
           [mode]="busySpinnerMode"
           [value]="busySpinnerValue"
         ></mat-progress-bar>
 
-        <h2>Winner: {{ debugText }}</h2>
+        <h2>{{ winText }}</h2>
       </div>
     </mat-card-content>
     <mat-card-actions>

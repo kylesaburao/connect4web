@@ -19,7 +19,7 @@ export class GameBoardComponent implements OnInit, OnDestroy {
   busySpinnerMode: ProgressSpinnerMode;
   busySpinnerValue: number;
   agentBusy: string;
-  debugText: string;
+  winText: string;
 
   constructor(private _context: GameContextService) {
     this._subscriptions = [];
@@ -31,12 +31,14 @@ export class GameBoardComponent implements OnInit, OnDestroy {
       .map((_, i) => i);
 
     this.busySpinnerMode = 'determinate';
-    this.debugText = '';
+    this.winText = '';
     this.agentBusy = '';
     this.busySpinnerValue = 0;
 
     let contextChanged = this._context.getChangeListener().subscribe(() => {
-      this.debugText = `${this._context.winner()}`;
+      let winner = this._context.winner();
+      let text = winner ? `Winner: ${winner}` : '';
+      this.winText = text;
     });
     this._subscriptions.push(contextChanged);
 
