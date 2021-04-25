@@ -1,14 +1,33 @@
-<table>
-  <tbody>
-    <tr *ngFor="let row of rows">
-      <td
-        *ngFor="let column of columns"
-        appCellState
-        [coordinates]="[row, column]"
-      ></td>
-    </tr>
-  </tbody>
-</table>
+<div fxLayout="column" fxLayoutAlign="space-between center">
+  <mat-card class="component-content">
+    <mat-card-content>
+      <div fxLayout="column" fxLayoutAlign="space-between center">
+        <table id="board">
+          <tbody>
+            <tr *ngFor="let row of rows">
+              <td *ngFor="let column of columns" class="cell-container">
+                <div
+                  appCellState
+                  [coordinates]="[row, column]"
+                  class="game-piece"
+                ></div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
 
-<p>TEMP Winner: {{ debugText }}</p>
-<button (click)="resetGame()">TEMP Reset</button>
+        <mat-progress-bar
+          [mode]="busySpinnerMode"
+          [value]="busySpinnerValue"
+        ></mat-progress-bar>
+
+        <h2>Winner: {{ debugText }}</h2>
+      </div>
+    </mat-card-content>
+    <mat-card-actions>
+      <button mat-raised-button color="warn" (click)="resetGame()">
+        Reset
+      </button>
+    </mat-card-actions>
+  </mat-card>
+</div>

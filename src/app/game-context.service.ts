@@ -12,10 +12,13 @@ export class GameContextService {
   private _worker!: Worker;
   private _busy: boolean;
 
+  private _agentBusy: BehaviorSubject<boolean>;
+
   constructor() {
     this._busy = false;
     this._context = new ConnectContext();
     this._contextUpdated = new BehaviorSubject<boolean>(false);
+    this._agentBusy = new BehaviorSubject<boolean>(false);
 
     if (typeof Worker !== 'undefined') {
       this._worker = new Worker('./agent.worker', { type: 'module' });
@@ -24,6 +27,7 @@ export class GameContextService {
           this._context.applyMove(result.data);
           this._contextUpdated.next(true);
           this._busy = false;
+          this._agentBusy.next(false);
         }
       };
     } else {
@@ -49,6 +53,7 @@ export class GameContextService {
 
     if (playerMoved && this._worker && !this._context.over()) {
       this._busy = true;
+      this._agentBusy.next(true);
       this._worker.postMessage({
         context: this._context._context,
         rounds: 5000, // TODO: dynamic duration
@@ -71,5 +76,9 @@ export class GameContextService {
 
   getChangeListener(): Observable<boolean> {
     return this._contextUpdated.asObservable();
+  }
+
+  getBusyAgentListener(): Observable<boolean> {
+    return this._agentBusy.asObservable();
   }
 }

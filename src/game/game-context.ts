@@ -34,8 +34,8 @@ export class ConnectContext implements Evaluable {
   static readonly COLUMNS: number = 7;
   static readonly ROWS: number = 6;
   static readonly STATE_DEFAULT: number = 0;
-  static readonly STATE_X: number = 1;
-  static readonly STATE_O: number = 2;
+  static readonly STATE_BLACK: number = 1;
+  static readonly STATE_RED: number = 2;
   static readonly STATE_UNKNOWN: number = 3;
   static readonly WIN_CONSECUTIVE: number = 4;
 
@@ -48,7 +48,7 @@ export class ConnectContext implements Evaluable {
     this._context = new GameContextData(
       ConnectContext.ROWS,
       ConnectContext.COLUMNS,
-      ConnectContext.STATE_X,
+      ConnectContext.STATE_BLACK,
       ConnectContext.STATE_DEFAULT
     );
   }
@@ -83,7 +83,7 @@ export class ConnectContext implements Evaluable {
   winner(): string {
     let winner = '';
     if (this._context.winner !== ConnectContext.STATE_DEFAULT) {
-      winner = this._context.winner === ConnectContext.STATE_X ? 'X' : 'O';
+      winner = this._context.winner === ConnectContext.STATE_BLACK ? 'B' : 'R';
     }
     return winner;
   }
@@ -103,10 +103,10 @@ export class ConnectContext implements Evaluable {
   atPosition(row: number, column: number): string {
     let state = this._atGrid(row, column);
     return state === ConnectContext.STATE_DEFAULT
-      ? '--'
-      : state === ConnectContext.STATE_X
-      ? 'X'
-      : 'O';
+      ? ''
+      : state === ConnectContext.STATE_BLACK
+      ? 'B'
+      : 'R';
   }
 
   private _checkWin(row: number, column: number, state: number): boolean {
@@ -215,9 +215,9 @@ export class ConnectContext implements Evaluable {
       }
 
       this._context.currentState =
-        this._context.currentState === ConnectContext.STATE_X
-          ? ConnectContext.STATE_O
-          : ConnectContext.STATE_X;
+        this._context.currentState === ConnectContext.STATE_BLACK
+          ? ConnectContext.STATE_RED
+          : ConnectContext.STATE_BLACK;
 
       return true;
     }
