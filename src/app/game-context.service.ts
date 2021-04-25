@@ -51,7 +51,7 @@ export class GameContextService {
       this._busy = true;
       this._worker.postMessage({
         context: this._context._context,
-        rounds: 2500,
+        rounds: 5000, // TODO: dynamic duration
       });
     }
   }
