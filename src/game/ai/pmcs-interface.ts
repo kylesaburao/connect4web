@@ -6,4 +6,5 @@ export interface Evaluable {
   winner(): string;
   currentPlayer(): number
   winningPlayer(): number;
+  defaultState(): number;
 }

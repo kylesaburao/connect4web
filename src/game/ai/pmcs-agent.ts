@@ -14,21 +14,22 @@ function keyOfMaxValue(dict: { [key: number]: number }): number | null {
 export function evaluateNextMove(
   context: Evaluable,
   rounds: number = 2500
-): number | null {
-  let moveScores: { [key: number]: number } = {};
-  for (let move of context.moves()) {
-    moveScores[move] = 0;
+): Promise<number | null> {
+  return new Promise<number | null>((resolve) => {
+    let moveScores: { [key: number]: number } = {};
+    for (let move of context.moves()) {
+      moveScores[move] = 0;
 
-    for (let round = 0; round < rounds; ++round) {
-      moveScores[move] += playout(context, move, context.currentPlayer())
-        ? 1
-        : 0;
+      for (let round = 0; round < rounds; ++round) {
+        moveScores[move] += playout(context, move, context.currentPlayer())
+          ? 1
+          : 0;
+      }
     }
-  }
 
-  console.log(moveScores);
-
-  return keyOfMaxValue(moveScores); // todo randomize on tiebreakers
+    let key = keyOfMaxValue(moveScores);
+    resolve(key); // todo randomize on tiebreakers
+  });
 }
 
 function playout(context: Evaluable, move: number, aiState: number): boolean {
@@ -40,5 +41,8 @@ function playout(context: Evaluable, move: number, aiState: number): boolean {
     workingContext.applyMove(currentMove);
   }
 
-  return workingContext.winningPlayer() === aiState;
+  return (
+    workingContext.winningPlayer() === aiState ||
+    workingContext.winningPlayer() === workingContext.defaultState()
+  );
 }

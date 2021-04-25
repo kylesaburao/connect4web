@@ -28,16 +28,6 @@ export class GameContextData {
       }
     }
   }
-
-  copy(): GameContextData {
-    let context: GameContextData = new GameContextData(
-      this.rows,
-      this.columns,
-      this.currentState
-    );
-    context.grid = this.grid.slice(0);
-    return context;
-  }
 }
 
 export class ConnectContext implements Evaluable {
@@ -52,7 +42,7 @@ export class ConnectContext implements Evaluable {
   private static readonly MAX_GRID_INDEX: number =
     ConnectContext.COLUMNS * ConnectContext.ROWS - 1;
 
-  private _context: GameContextData;
+  _context: GameContextData;
 
   constructor() {
     this._context = new GameContextData(
@@ -73,7 +63,12 @@ export class ConnectContext implements Evaluable {
 
   simulateMove(move: number): ConnectContext {
     let gameContext: ConnectContext = new ConnectContext();
-    gameContext._context = this._context.copy();
+    gameContext._context = new GameContextData(
+      this._context.rows,
+      this._context.columns,
+      this._context.currentState
+    );
+    gameContext._context.grid = this._context.grid.slice(0);
     gameContext._executeMove(move);
     return gameContext;
   }
@@ -101,6 +96,10 @@ export class ConnectContext implements Evaluable {
     return this._context.winner;
   }
 
+  defaultState(): number {
+    return ConnectContext.STATE_DEFAULT;
+  }
+
   atPosition(row: number, column: number): string {
     let state = this._atGrid(row, column);
     return state === ConnectContext.STATE_DEFAULT
@@ -110,112 +109,45 @@ export class ConnectContext implements Evaluable {
       : 'O';
   }
 
-  private _checkWin(row: number, column: number, state: number) {
-    let checkHorizontal = (
-      row: number,
-      column: number,
-      goRight: boolean
-    ): boolean => {
-      let counter = 0;
-      let direction = goRight ? 1 : -1;
+  private _checkWin(row: number, column: number, state: number): boolean {
+    for (let deltas of [
+      [1, 0],
+      [0, 1],
+      [1, 1],
+      [1, -1],
+    ]) {
+      let leftCounter = 0;
+      let rightCounter = 0;
 
-      for (
-        let currentColumn = column;
-        currentColumn >= 0 && currentColumn < ConnectContext.COLUMNS;
-        currentColumn += direction
-      ) {
-        if (this._atGrid(row, currentColumn) === state) {
-          ++counter;
-        } else {
-          break;
-        }
-      }
+      for (let parity of [1, -1]) {
+        const dRow = deltas[0] * parity;
+        const dColumn = deltas[1] * parity;
+        const isGoingLeft = parity === 1 ? true : false;
 
-      return counter >= ConnectContext.WIN_CONSECUTIVE;
-    };
+        let currentRow = row + dRow;
+        let currentColumn = column + dColumn;
 
-    let checkVertical = (
-      row: number,
-      column: number,
-      goUp: boolean
-    ): boolean => {
-      let counter = 0;
-      let direction = goUp ? -1 : 1;
-
-      for (
-        let currentRow = row;
-        currentRow >= 0 && currentRow < ConnectContext.ROWS;
-        currentRow += direction
-      ) {
-        if (this._atGrid(currentRow, column) === state) {
-          ++counter;
-        } else {
-          break;
-        }
-      }
-
-      return counter >= ConnectContext.WIN_CONSECUTIVE;
-    };
-
-    let checkDiagonal = (
-      row: number,
-      column: number,
-      direction: boolean
-    ): boolean => {
-      const isValid = (row: number, column: number): boolean => {
-        return (
-          row >= 0 &&
-          row < ConnectContext.ROWS &&
-          column >= 0 &&
-          column < ConnectContext.COLUMNS
-        );
-      };
-
-      const offsetParities = [
-        [1, 1],
-        [-1, -1],
-        [1, -1],
-        [-1, 1],
-      ];
-
-      for (let offset of offsetParities) {
-        let currentRow = row;
-        let currentColumn = column;
-        let counter = 0;
-
-        while (isValid(currentRow, currentColumn)) {
+        while (this._isValidCoordinate(currentRow, currentColumn)) {
           if (this._atGrid(currentRow, currentColumn) === state) {
-            ++counter;
+            if (isGoingLeft) {
+              ++leftCounter;
+            } else {
+              ++rightCounter;
+            }
+            currentRow += dRow;
+            currentColumn += dColumn;
           } else {
             break;
           }
-          currentRow += offset[0];
-          currentColumn += offset[1];
-        }
-
-        if (counter >= ConnectContext.WIN_CONSECUTIVE) {
-          return true;
         }
       }
 
-      return false;
-    };
-
-    let winnerExists: boolean = false;
-
-    for (let checkFunc of [checkHorizontal, checkVertical, checkDiagonal]) {
-      for (let directionParity of [true, false]) {
-        if (checkFunc(row, column, directionParity)) {
-          winnerExists = true;
-          this._context.winner = state;
-          break;
-        }
+      if (leftCounter + rightCounter + 1 >= ConnectContext.WIN_CONSECUTIVE) {
+        return true;
       }
     }
 
-    if (!winnerExists) {
-      this._context.winner = ConnectContext.STATE_DEFAULT; // Safe reset
-    }
+    return false;
   }
 
   private _setGrid(row: number, column: number, state: number): void {
@@ -233,7 +165,12 @@ export class ConnectContext implements Evaluable {
   }
 
   private _isValidCoordinate(row: number, column: number): boolean {
-    return this._getIndex(row, column) != -1;
+    return (
+      row >= 0 &&
+      row < ConnectContext.ROWS &&
+      column >= 0 &&
+      column < ConnectContext.COLUMNS
+    );
   }
 
   private _isValidIndex(index: number): boolean {
@@ -273,7 +210,9 @@ export class ConnectContext implements Evaluable {
         }
       }
 
-      this._checkWin(moveRow, column, this._context.currentState);
+      if (this._checkWin(moveRow, column, this._context.currentState)) {
+        this._context.winner = this._context.currentState;
+      }
 
       this._context.currentState =
         this._context.currentState === ConnectContext.STATE_X

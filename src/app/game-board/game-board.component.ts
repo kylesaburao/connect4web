@@ -41,7 +41,7 @@ export class GameBoardComponent implements OnInit, OnDestroy {
   }
 
   onCellClicked(row: number, column: number) {
-    console.log(row, column);
+    // this.activateColumn(column);
   }
 
   onCellHover(row: number, column: number) {}
