@@ -37,6 +37,7 @@ export class GameBoardComponent implements OnInit, OnDestroy {
 
     let contextChanged = this._context.getChangeListener().subscribe(() => {
       let winner = this._context.winner();
+      winner = winner === '' ? '' : winner === 'R' ? 'Red' : 'Black';
       let text = winner ? `Winner: ${winner}` : '';
       this.winText = text;
     });
