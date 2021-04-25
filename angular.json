@@ -124,6 +124,12 @@
               "devServerTarget": "connect4web:serve:production"
             }
           }
+        },
+        "deploy": {
+          "builder": "angular-cli-ghpages:deploy",
+          "options": {
+            "baseHref": "/connect4web/"
+          }
         }
       }
     }
