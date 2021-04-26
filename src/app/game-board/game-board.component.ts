@@ -36,9 +36,15 @@ export class GameBoardComponent implements OnInit, OnDestroy {
     this.busySpinnerValue = 0;
 
     let contextChanged = this._context.getChangeListener().subscribe(() => {
+      const gameOver = this._context.over();
       let winner = this._context.winner();
       winner = winner === '' ? '' : winner === 'R' ? 'Red' : 'Black';
       let text = winner ? `Winner: ${winner}` : '';
+
+      if (gameOver && !winner) {
+        text = 'Draw';
+      }
+
       this.winText = text;
     });
     this._subscriptions.push(contextChanged);
