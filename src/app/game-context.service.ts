@@ -1,5 +1,5 @@
 import { Injectable, OnInit } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { evaluateNextMove } from 'src/game/ai/pmcs-agent';
 import { ConnectContext } from 'src/game/game-context';
 
@@ -13,12 +13,14 @@ export class GameContextService {
   private _busy: boolean;
 
   private _agentBusy: BehaviorSubject<boolean>;
+  private _onOver: Subject<void>;
 
   constructor() {
     this._busy = false;
     this._context = new ConnectContext();
     this._contextUpdated = new BehaviorSubject<boolean>(false);
     this._agentBusy = new BehaviorSubject<boolean>(false);
+    this._onOver = new Subject();
 
     if (typeof Worker !== 'undefined') {
       this._worker = new Worker('./agent.worker', { type: 'module' });
@@ -28,11 +30,19 @@ export class GameContextService {
           this._contextUpdated.next(true);
           this._busy = false;
           this._agentBusy.next(false);
+
+          if (this._context.over()) {
+            this._onOver.next();
+          }
         }
       };
     } else {
       alert('Web Worker API not supported');
     }
+  }
+
+  onOver(): Observable<void> {
+    return this._onOver.asObservable();
   }
 
   atPosition(row: number, column: number): string {
@@ -50,6 +60,9 @@ export class GameContextService {
 
     let playerMoved: boolean = this._context.applyMove(move);
     this._contextUpdated.next(true);
+    if (this._context.over()) {
+      this._onOver.next();
+    }
 
     if (playerMoved && this._worker && !this._context.over()) {
       this._busy = true;

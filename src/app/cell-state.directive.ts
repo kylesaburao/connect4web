@@ -38,14 +38,19 @@ export class CellStateDirective implements AfterViewInit, OnDestroy {
     this.row = this.coordinates[0];
     this.column = this.coordinates[1];
 
-    let subscription = this._contextService
+    let position = this._contextService
       .getChangeListener()
       .subscribe(() => {
         let state = this._contextService.atPosition(this.row, this.column);
         this._setContent(state);
       });
 
-    this._subscriptions.push(subscription);
+    let over = this._contextService.onOver().subscribe(() => {
+      this._columnViewService.removeColumnClass(this.column, 'hovered');
+      this._columnViewService.removeColumnClass(this.column, 'clicked');
+    })
+
+    this._subscriptions.push(position, over);
 
     this._subscriptions.push(
       this._columnViewService
@@ -74,7 +79,9 @@ export class CellStateDirective implements AfterViewInit, OnDestroy {
   }
 
   @HostListener('mouseenter') onColumnEntered() {
-    this._columnViewService.addColumnClass(this.column, 'hovered');
+    if (!this._contextService.over()) {
+      this._columnViewService.addColumnClass(this.column, 'hovered');
+    }
   }
 
   @HostListener('mouseleave') onColumnLeft() {
@@ -83,11 +90,15 @@ export class CellStateDirective implements AfterViewInit, OnDestroy {
   }
 
   @HostListener('click') onColumnClicked() {
-    this._contextService.applyMove(this.column);
+    if (!this._contextService.over()) {
+      this._contextService.applyMove(this.column);
+    }
   }
 
   @HostListener('mousedown') onColumnMousedown() {
-    this._columnViewService.addColumnClass(this.column, 'clicked');
+    if (!this._contextService.over()) {
+      this._columnViewService.addColumnClass(this.column, 'clicked');
+    }
   }
 
   @HostListener('mouseup') onColumnMouseup() {

@@ -18,7 +18,7 @@ export class GameBoardComponent implements OnInit, OnDestroy {
 
   busySpinnerMode: ProgressSpinnerMode;
   busySpinnerValue: number;
-  agentBusy: string;
+  opponentBusy: string;
   winText: string;
 
   constructor(private _context: GameContextService) {
@@ -32,7 +32,7 @@ export class GameBoardComponent implements OnInit, OnDestroy {
 
     this.busySpinnerMode = 'determinate';
     this.winText = '';
-    this.agentBusy = '';
+    this.opponentBusy = '';
     this.busySpinnerValue = 0;
 
     let contextChanged = this._context.getChangeListener().subscribe(() => {
@@ -52,7 +52,7 @@ export class GameBoardComponent implements OnInit, OnDestroy {
     let agentState = this._context.getBusyAgentListener().subscribe((busy) => {
       this.busySpinnerMode = busy ? 'indeterminate' : 'determinate';
       this.busySpinnerValue = busy ? 0 : 100;
-      this.agentBusy = busy ? 'BUSY' : 'IDLE';
+      this.opponentBusy = busy ? 'BUSY' : 'IDLE';
     });
     this._subscriptions.push(agentState);
   }

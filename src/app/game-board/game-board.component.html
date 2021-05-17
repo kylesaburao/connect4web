@@ -1,5 +1,13 @@
 <div fxLayout="column" fxLayoutAlign="space-between center">
   <mat-card class="component-content">
+    <mat-card-subtitle>
+      <div fxLayout="row" fxLayoutAlign="space-between stretch">
+        <span>You vs. AI</span>
+        <span
+          ><b>{{ winText }}</b></span
+        >
+      </div>
+    </mat-card-subtitle>
     <mat-card-content>
       <div fxLayout="column" fxLayoutAlign="space-between center">
         <table id="board">
@@ -21,8 +29,6 @@
           [mode]="busySpinnerMode"
           [value]="busySpinnerValue"
         ></mat-progress-bar>
-
-        <h2>{{ winText }}</h2>
       </div>
     </mat-card-content>
     <mat-card-actions>
