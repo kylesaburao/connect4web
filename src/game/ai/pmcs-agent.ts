@@ -1,14 +1,24 @@
 import random from 'random';
 import { Evaluable } from './pmcs-interface';
 
-function keyOfMaxValue(dict: { [key: number]: number }): number | null {
-  let maximumKey: number | null = null;
-  for (let key in dict) {
-    if (maximumKey === null || dict[key] > dict[maximumKey]) {
-      maximumKey = parseInt(key);
+type Score = number;
+type Moves = number[];
+type ScoreMap = Map<Score, Moves>;
+
+function selectMaximizingMove(map: ScoreMap): number | null {
+  let maxScore: number | null = null;
+  map.forEach((moves, score) => {
+    if (maxScore === null || score > maxScore) {
+      maxScore = score;
     }
+  });
+
+  if (maxScore !== null) {
+    const maximizingMoves: Moves = <Moves>map.get(maxScore);
+    return maximizingMoves[random.int(0, maximizingMoves.length - 1)]
   }
-  return maximumKey;
+
+  return null;
 }
 
 export function evaluateNextMove(
@@ -16,19 +26,26 @@ export function evaluateNextMove(
   rounds: number = 2500
 ): Promise<number | null> {
   return new Promise<number | null>((resolve) => {
-    let moveScores: { [key: number]: number } = {};
+    let scores = new Map<Score, Moves>();
+
     for (let move of context.moves()) {
-      moveScores[move] = 0;
+      let score = 0;
 
       for (let round = 0; round < rounds; ++round) {
-        moveScores[move] += playout(context, move, context.currentPlayer())
+        score += playout(context, move, context.currentPlayer())
           ? 1
           : 0;
       }
+
+      if (scores.has(score)) {
+        scores.get(score)?.push(move);
+      } else {
+        scores.set(score, [move]);
+      }
     }
 
-    let key = keyOfMaxValue(moveScores);
-    resolve(key); // todo randomize on tiebreakers
+    let key = selectMaximizingMove(scores);
+    resolve(key);
   });
 }
 
