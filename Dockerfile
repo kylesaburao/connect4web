@@ -3,7 +3,6 @@ COPY app/ /app
 WORKDIR /app
 RUN npm install
 RUN npm install -g @angular/cli 
-EXPOSE 4401
 RUN ng build --configuration=production
 
 FROM node as server
