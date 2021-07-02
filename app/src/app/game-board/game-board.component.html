@@ -32,7 +32,7 @@
       </div>
     </mat-card-content>
     <mat-card-actions>
-      <button mat-raised-button color="warn" (click)="resetGame()">
+      <button [disabled]="opponentBusy" mat-raised-button color="warn" (click)="resetGame()">
         Reset
       </button>
     </mat-card-actions>
